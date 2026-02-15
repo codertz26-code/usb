@@ -1,0 +1,183 @@
+[
+  {
+    "id": "AC2CBEE717A7E8FADAFA551268A33D34",
+    "jid": "255768936486@s.whatsapp.net",
+    "message": {
+      "key": {
+        "remoteJid": "255768936486@s.whatsapp.net",
+        "fromMe": true,
+        "id": "AC2CBEE717A7E8FADAFA551268A33D34"
+      },
+      "messageTimestamp": 1769160442,
+      "broadcast": false,
+      "status": 2,
+      "message": {
+        "protocolMessage": {
+          "type": "PEER_DATA_OPERATION_REQUEST_RESPONSE_MESSAGE",
+          "peerDataOperationRequestResponseMessage": {
+            "peerDataOperationRequestType": "PLACEHOLDER_MESSAGE_RESEND",
+            "stanzaId": "DREADED-7C6D3FDB8575A90F7C",
+            "peerDataOperationResult": [
+              {
+                "mediaUploadResult": "SUCCESS",
+                "placeholderMessageResendResponse": {
+                  "webMessageInfoBytes": "CjMKFzEyMDM2MzQyMTU3NjM1MTk5MEBnLnVzEAAaFjNFQjA4Qjc3MURCNTY1NkI2REYxODYSwQcavgcK+gFodHRwczovL21tZy53aGF0c2FwcC5uZXQvbzEvdi90MjQvZjIvbTIzNS9BUVBiYl9YWDI3cDU5T2dMd24xcXh2YS1EbHB5dFc4ZUZxbXBSay1JUUM3MjZwLURpMEttb3JfNlNGMzlrel81OGZQTi1rdXBCck9xOGtLZXZOeGNCQ09TLU9TYUg3d3Bia3VJdWFQRnV3P2NjYj05LTQmb2g9MDFfUTVBYTNnRXl1YUhpX0dUUVpjYU5sV20yRTRxUlFKTl9kUTVpa3VjZkg2em1OZVhJRWcmb2U9Njk5QUM1QkEmX25jX3NpZD1lNmVkNmMmbW1zMz10cnVlEgppbWFnZS9qcGVnGosCCuKWieKUgOKUgOOAjiDwk4qIIE1PTU8gWkVOIPCTiokg44CP4pSA4pSA4paJCuKUgyDwn6SWIFN0YXR1cyAgOiAqT05MSU5FKgrilIMg8J+MkCBNb2RlICAgIDogUFVCTElDCuKUgyDij7AgVGltZSAgICA6IDA5OjE5IEFNCuKUgyDwn5OFIERhdGUgICAgOiAxLzIzLzIwMjYK4pSDIOKMmyBVcHRpbWUgIDogMGQgMWggNTltIDlzCuKUgyDwn5qAIFZlcnNpb24gOiAyCuKWieKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKWiQoKIiBK/H7qvLL/y4QG8fWogbwKs0dw87d+us3wIUlnEw+eNCjptwUwgAg4gAhCIA2O5aiVieKuxzQoYag5yo0OJDCHaJfiMCGMM97yR+72SiAhIQJ2miy2W+mp4NjGYhBke+mALRqBhlwOMAe8JJE9CVrYAS9vMS92L3QyNC9mMi9tMjM1L0FRUGJiX1hYMjdwNTlPZ0x3bjFxeHZhLURscHl0VzhlRnFtcFJrLUlRQzcyNnAtRGkwS21vcl82U0YzOWt6XzU4ZlBOLWt1cEJyT3E4a0tldk54Y0JDT1MtT1NhSDd3cGJrdUl1YVBGdXc/Y2NiPTktNCZvaD0wMV9RNUFhM2dFeXVhSGlfR1RRWmNhTmxXbTJFNHFSUUpOX2RRNWlrdWNmSDZ6bU5lWElFZyZvZT02OTlBQzVCQSZfbmNfc2lkPWU2ZWQ2Y2DA+szLBooBUwogQUM4RUVCMkM0RDY5MTk0QTQzREY1QTYxOThCNjZCRDkSEzIwNDU1MjYzMjU4MjI2MEBsaWQaCAoGLmFsaXZlyAGAowWCAgQIABAA2AMAuAQAGMD6zMsGKhMyNTA2OTc4NjE4ODE5NDhAbGlk8gMSChABDx4bA4uRAkijA09C5jSFiAQA"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "timestamp": 1769160442000
+  },
+  {
+    "id": "3EB08B771DB5656B6DF186",
+    "jid": "120363421576351990@g.us",
+    "message": {
+      "key": {
+        "remoteJid": "120363421576351990@g.us",
+        "fromMe": false,
+        "id": "3EB08B771DB5656B6DF186"
+      },
+      "message": {
+        "imageMessage": {
+          "url": "https://mmg.whatsapp.net/o1/v/t24/f2/m235/AQPbb_XX27p59OgLwn1qxva-DlpytW8eFqmpRk-IQC726p-Di0Kmor_6SF39kz_58fPN-kupBrOq8kKevNxcBCOS-OSaH7wpbkuIuaPFuw?ccb=9-4&oh=01_Q5Aa3gEyuaHi_GTQZcaNlWm2E4qRQJN_dQ5ikucfH6zmNeXIEg&oe=699AC5BA&_nc_sid=e6ed6c&mms3=true",
+          "mimetype": "image/jpeg",
+          "caption": "\n▉──『 𓊈 MOMO ZEN 𓊉 』──▉\n┃ 🤖 Status  : *ONLINE*\n┃ 🌐 Mode    : PUBLIC\n┃ ⏰ Time    : 09:19 AM\n┃ 📅 Date    : 1/23/2026\n┃ ⌛ Uptime  : 0d 1h 59m 9s\n┃ 🚀 Version : 2\n▉─────────────────▉\n\n",
+          "fileSha256": "Svx+6ryy/8uEBvH1qIG8CrNHcPO3frrN8CFJZxMPnjQ=",
+          "fileLength": "89065",
+          "height": 1024,
+          "width": 1024,
+          "mediaKey": "DY7lqJWJ4q7HNChhqDnKjQ4kMIdol+IwIYwz3vJH7vY=",
+          "fileEncSha256": "ISECdpostlvpqeDYxmIQZHvpgC0agYZcDjAHvCSRPQk=",
+          "directPath": "/o1/v/t24/f2/m235/AQPbb_XX27p59OgLwn1qxva-DlpytW8eFqmpRk-IQC726p-Di0Kmor_6SF39kz_58fPN-kupBrOq8kKevNxcBCOS-OSaH7wpbkuIuaPFuw?ccb=9-4&oh=01_Q5Aa3gEyuaHi_GTQZcaNlWm2E4qRQJN_dQ5ikucfH6zmNeXIEg&oe=699AC5BA&_nc_sid=e6ed6c",
+          "mediaKeyTimestamp": "1769160000",
+          "contextInfo": {
+            "stanzaId": "AC8EEB2C4D69194A43DF5A6198B66BD9",
+            "participant": "204552632582260@lid",
+            "quotedMessage": {
+              "conversation": ".alive"
+            },
+            "expiration": 86400,
+            "disappearingMode": {
+              "initiator": "CHANGED_IN_CHAT",
+              "trigger": "UNKNOWN"
+            },
+            "pairedMediaType": "NOT_PAIRED_MEDIA"
+          }
+        }
+      },
+      "messageTimestamp": "1769160000",
+      "participant": "250697861881948@lid",
+      "reportingTokenInfo": {
+        "reportingTag": "AQ8eGwOLkQJIowNPQuY0hQ=="
+      },
+      "isMentionedInStatus": false
+    },
+    "timestamp": 1769160000000
+  },
+  {
+    "id": "AC80C9179057C9699F23ED579BE0FA26",
+    "jid": "72598419439826@lid",
+    "message": {
+      "key": {
+        "remoteJid": "72598419439826@lid",
+        "fromMe": true,
+        "id": "AC80C9179057C9699F23ED579BE0FA26"
+      },
+      "messageTimestamp": 1769160443,
+      "pushName": "Ai",
+      "broadcast": false,
+      "status": 2,
+      "message": {
+        "conversation": ".ping"
+      }
+    },
+    "timestamp": 1769160443000
+  },
+  {
+    "id": "DREADED-473679079264DEE301",
+    "jid": "72598419439826@lid",
+    "message": {
+      "key": {
+        "remoteJid": "72598419439826@lid",
+        "fromMe": true,
+        "id": "DREADED-473679079264DEE301"
+      },
+      "message": {
+        "reactionMessage": {
+          "key": {
+            "remoteJid": "72598419439826@lid",
+            "fromMe": true,
+            "id": "AC80C9179057C9699F23ED579BE0FA26"
+          },
+          "text": "🚀",
+          "senderTimestampMs": "1769160443673"
+        }
+      },
+      "messageTimestamp": "1769160443",
+      "status": "PENDING"
+    },
+    "timestamp": 1769160443000
+  },
+  {
+    "id": "DREADED-194AF02DFB0EF707B5",
+    "jid": "72598419439826@lid",
+    "message": {
+      "key": {
+        "remoteJid": "72598419439826@lid",
+        "fromMe": true,
+        "id": "DREADED-194AF02DFB0EF707B5"
+      },
+      "message": {
+        "extendedTextMessage": {
+          "text": "𝐒𝐈𝐋𝐀-𝐌𝐃...",
+          "contextInfo": {
+            "participant": "0@s.whatsapp.net",
+            "quotedMessage": {
+              "contactMessage": {
+                "displayName": "© 𝐒𝐈𝐋𝐀-𝐌𝐃",
+                "vcard": "BEGIN:VCARD\nVERSION:3.0\nFN:𝐒𝐈𝐋𝐀 𝐌𝐃 𝐁𝐎𝐓\nORG:𝐒𝐈𝐋𝐀-𝐌𝐃;\nTEL;type=CELL;type=VOICE;waid=255789661031:+255789661031\nEND:VCARD"
+              }
+            },
+            "remoteJid": "status@broadcast"
+          }
+        }
+      },
+      "messageTimestamp": "1769160443",
+      "status": "PENDING"
+    },
+    "timestamp": 1769160443000
+  },
+  {
+    "id": "DREADED-C4E81B67F9BB99016A",
+    "jid": "72598419439826@lid",
+    "message": {
+      "key": {
+        "remoteJid": "72598419439826@lid",
+        "fromMe": true,
+        "id": "DREADED-C4E81B67F9BB99016A"
+      },
+      "message": {
+        "protocolMessage": {
+          "key": {
+            "remoteJid": "72598419439826@lid",
+            "fromMe": true,
+            "id": "DREADED-194AF02DFB0EF707B5"
+          },
+          "type": "MESSAGE_EDIT",
+          "editedMessage": {
+            "extendedTextMessage": {
+              "text": "┏━❑ 𝐏𝐎𝐍𝐆 ━━━━━━━━━━━━━━\n┃ ⚡ 732 ms\n┃ 🚀 𝐒𝐈𝐋𝐀-𝐌𝐃 𝐁𝐎𝐓\n┗━━━━━━━━━━━━━━━━━━━━━"
+            }
+          },
+          "timestampMs": "1769160444406"
+        }
+      },
+      "messageTimestamp": "1769160444",
+      "status": "PENDING"
+    },
+    "timestamp": 1769160444000
+  }
+]
