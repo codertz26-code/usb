@@ -1,8 +1,8 @@
 {
-  "name": "POPKID-XTR",
+  "name": "SILA-MD",
   "description": "WhatsApp bot made by Nima Md",
-  "logo": "https://files.catbox.moe/kiy0hl.jpg",
-  "keywords": ["POPKID-XTR"],
+  "logo": "https://files.catbox.moe/36vahk.png",
+  "keywords": ["SILA-MD"],
   "success_url": "/",
 
     "stack": "container",
@@ -16,7 +16,7 @@
     "STICKER_NAME": {
       "description": "type your sticker pack name.",
       "required": true,
-      "value": "POPKID-XTR"
+      "value": "SILA-MD"
     }, 
 
     "CUSTOM_STATUS_EMOJIS": {
@@ -84,27 +84,27 @@
     "AUTO_STATUS_MSG": {
       "description": "Type custom message on status reply",
       "required": true,
-      "value": ".𝗦𝗘𝗘𝗡 𝗬𝗢𝗨𝗥 𝗦𝗧𝗔𝗧𝗨𝗦 𝗕𝗬 𝗣𝗢𝗣𝗞𝗜𝗗 𝗫𝗧𝗥🔄"
+      "value": ".*𝐒𝐈𝐋𝐀-𝐌𝐃 𝐕𝐈𝐄𝐖𝐄𝐃✅*"
    
      }, 
     
     "OWNER_NAME": {
       "description": "Type Bot Owner Name.",
       "required": false,
-      "value": "POPKID-XTR"
+      "value": "SILA-MD"
 }, 
 
     "OWNER_NUMBER": {
       "description": "put the owner number for bot.",
       "required": false,
-      "value": "254732297194"
+      "value": "255789661031"
 
     }, 
 
     "BOT_NAME": {
       "description": "Type here the bot name.",
       "required": true,
-      "value": "POPKID-XTR"
+      "value": "SILA-MD"
 
       }, 
 
@@ -137,13 +137,13 @@
     "MENU_IMAGE_URL": {
       "description": "add url for mention reply and menu if want.",
       "required": true,
-      "value": "https://files.catbox.moe/kiy0hl.jpg"
+      "value": "https://files.catbox.moe/36vahk.png"
     },
     
      "DESCRIPTION": {
       "description": "add caption for menu and other",
       "required": true,
-      "value": "*© popkid xtr bot*"
+      "value": "*© 𝐒𝐈𝐋𝐀-𝐌𝐃*"
     },
 
       "DELETE_LINKS": {
