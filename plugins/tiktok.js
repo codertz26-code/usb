@@ -1,9 +1,12 @@
 const { cmd } = require('../command');
 const { ttdl } = require("ruhend-scraper");
 const axios = require('axios');
+const { prepareWAMessageMedia, generateWAMessageFromContent, proto } = require('@whiskeysockets/baileys');
+const fs = require('fs');
 
-// Store processed message IDs to prevent duplicates
+// Store processed message IDs and pending downloads
 const processedMessages = new Set();
+const pendingDownloads = new Map();
 
 // Define combined fakevCard 
 const fakevCard = {
@@ -33,11 +36,14 @@ const getContextInfo = (m) => {
     };
 };
 
+// Default image for slides (weka picha yako hapa)
+const DEFAULT_IMAGE = './image.jpg'; // Badili na path ya picha yako
+
 cmd({
     pattern: "tiktok",
     alias: ["tt", "ttdl", "tiktokdl"],
     react: "🔄",
-    desc: "Download TikTok videos without watermark",
+    desc: "Download TikTok videos with slide selection",
     category: "download",
     filename: __filename
 },
@@ -48,13 +54,8 @@ async(conn, mek, m, {from, prefix, l, quoted, body, isCmd, command, args, q, isG
             return;
         }
         
-        // Add message ID to processed set
         processedMessages.add(m.key.id);
-        
-        // Clean up old message IDs after 5 minutes
-        setTimeout(() => {
-            processedMessages.delete(m.key.id);
-        }, 5 * 60 * 1000);
+        setTimeout(() => processedMessages.delete(m.key.id), 5 * 60 * 1000);
 
         // Get URL from arguments
         const url = q || args[0];
@@ -66,192 +67,359 @@ async(conn, mek, m, {from, prefix, l, quoted, body, isCmd, command, args, q, isG
             }, { quoted: fakevCard });
         }
 
-        // Check for various TikTok URL formats
+        // Validate TikTok URL
         const tiktokPatterns = [
             /https?:\/\/(?:www\.)?tiktok\.com\//,
             /https?:\/\/(?:vm\.)?tiktok\.com\//,
-            /https?:\/\/(?:vt\.)?tiktok\.com\//,
-            /https?:\/\/(?:www\.)?tiktok\.com\/@/,
-            /https?:\/\/(?:www\.)?tiktok\.com\/t\//
+            /https?:\/\/(?:vt\.)?tiktok\.com\//
         ];
 
         const isValidUrl = tiktokPatterns.some(pattern => pattern.test(url));
         
         if (!isValidUrl) {
             return await conn.sendMessage(from, {
-                text: `┏━❑ 𝐄𝐑𝐑𝐎𝐑 ━━━━━━━━━━━━━\n┃ ❌ Invalid TikTok link\n┗━━━━━━━━━━━━━━━━━━━━\n\nPlease provide a valid TikTok video link.\n\n> © Powered by Sila Tech`,
+                text: `┏━❑ 𝐄𝐑𝐑𝐎𝐑 ━━━━━━━━━━━━━\n┃ ❌ Invalid TikTok link\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
                 contextInfo: getContextInfo({ sender: sender })
             }, { quoted: fakevCard });
         }
 
-        // Try multiple APIs in sequence
+        // Notify user that we're fetching
+        await conn.sendMessage(from, {
+            text: `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 ━━━━━━━━━━━━━\n┃ 🔄 Fetching video info...\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
+            contextInfo: getContextInfo({ sender: sender })
+        }, { quoted: fakevCard });
+
+        // Fetch video data from multiple sources
+        let videoData = {
+            hd: null,
+            sd: null,
+            wm: null,
+            audio: null,
+            cover: null,
+            title: "TikTok Video",
+            author: "Unknown"
+        };
+
+        // Try APIs
         const apis = [
             `https://api.princetechn.com/api/download/tiktok?apikey=prince&url=${encodeURIComponent(url)}`,
-            `https://api.princetechn.com/api/download/tiktokdlv2?apikey=prince_tech_api_azfsbshfb&url=${encodeURIComponent(url)}`,
-            `https://api.princetechn.com/api/download/tiktokdlv3?apikey=prince_tech_api_azfsbshfb&url=${encodeURIComponent(url)}`,
-            `https://api.princetechn.com/api/download/tiktokdlv4?apikey=prince_tech_api_azfsbshfb&url=${encodeURIComponent(url)}`,
             `https://api.dreaded.site/api/tiktok?url=${encodeURIComponent(url)}`
         ];
 
-        let videoUrl = null;
-        let audioUrl = null;
-        let title = null;
-
-        // Try each API until one works
         for (const apiUrl of apis) {
             try {
-                const response = await axios.get(apiUrl, { timeout: 10000 });
+                const response = await axios.get(apiUrl, { timeout: 15000 });
                 
                 if (response.data) {
-                    // Handle different API response formats
-                    if (response.data.result && response.data.result.videoUrl) {
-                        // PrinceTech API format
-                        videoUrl = response.data.result.videoUrl;
-                        audioUrl = response.data.result.audioUrl;
-                        title = response.data.result.title;
+                    // PrinceTech API
+                    if (response.data.result) {
+                        videoData.hd = response.data.result.videoUrl;
+                        videoData.audio = response.data.result.audioUrl;
+                        videoData.title = response.data.result.title || videoData.title;
+                        videoData.cover = response.data.result.cover;
                         break;
-                    } else if (response.data.tiktok && response.data.tiktok.video) {
-                        // Dreaded API format
-                        videoUrl = response.data.tiktok.video;
-                        break;
-                    } else if (response.data.video) {
-                        // Alternative format
-                        videoUrl = response.data.video;
+                    }
+                    // Dreaded API
+                    else if (response.data.tiktok) {
+                        videoData.hd = response.data.tiktok.video;
+                        videoData.audio = response.data.tiktok.audio;
+                        videoData.cover = response.data.tiktok.thumbnail;
                         break;
                     }
                 }
-            } catch (apiError) {
-                l(`TikTok API failed: ${apiError.message}`);
+            } catch (e) {
+                l(`API failed: ${e.message}`);
                 continue;
             }
         }
 
-        // If no API worked, try the original ttdl method
-        if (!videoUrl) {
-            let downloadData = await ttdl(url);
-            if (downloadData && downloadData.data && downloadData.data.length > 0) {
-                const mediaData = downloadData.data;
-                for (let i = 0; i < Math.min(20, mediaData.length); i++) {
-                    const media = mediaData[i];
-                    const mediaUrl = media.url;
-
-                    // Check if URL ends with common video extensions
-                    const isVideo = /\.(mp4|mov|avi|mkv|webm)$/i.test(mediaUrl) || 
-                                  media.type === 'video';
-
-                    if (isVideo) {
-                        await conn.sendMessage(from, {
-                            video: { url: mediaUrl },
-                            mimetype: "video/mp4",
-                            caption: `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 𝐕𝐈𝐃𝐄𝐎 ━━━━━━━━━\n┃ ✅ Downloaded successfully\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`
-                        }, { quoted: fakevCard });
-                    } else {
-                        await conn.sendMessage(from, {
-                            image: { url: mediaUrl },
-                            caption: `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 𝐈𝐌𝐀𝐆𝐄 ━━━━━━━━━\n┃ ✅ Downloaded successfully\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`
-                        }, { quoted: fakevCard });
-                    }
+        // Try ttdl as fallback
+        if (!videoData.hd) {
+            try {
+                const ttdlData = await ttdl(url);
+                if (ttdlData?.data?.length > 0) {
+                    const media = ttdlData.data[0];
+                    videoData.hd = media.url;
+                    videoData.title = "TikTok Video";
                 }
-                
-                // Update react to success
-                await conn.sendMessage(from, {
-                    react: { text: '✅', key: m.key }
-                });
-                return;
+            } catch (e) {
+                l(`ttdl failed: ${e.message}`);
             }
         }
 
-        // Send the video if we got a URL from the APIs
-        if (videoUrl) {
+        if (!videoData.hd && !videoData.audio) {
+            return await conn.sendMessage(from, {
+                text: `┏━❑ 𝐄𝐑𝐑𝐎𝐑 ━━━━━━━━━━━━━\n┃ ❌ Failed to fetch video\n┃ Try again later\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
+                contextInfo: getContextInfo({ sender: sender })
+            }, { quoted: fakevCard });
+        }
+
+        // Prepare slides/cards for carousel
+        const cards = [];
+        const downloadOptions = [];
+
+        // Option 1: Video HD (No Watermark)
+        if (videoData.hd) {
+            downloadOptions.push({ type: 'hd', url: videoData.hd, label: 'Video HD' });
             try {
-                // Download video as buffer for better reliability
-                const videoResponse = await axios.get(videoUrl, {
-                    responseType: 'arraybuffer',
-                    timeout: 30000,
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                const media = await prepareWAMessageMedia(
+                    { image: { url: videoData.cover || DEFAULT_IMAGE } },
+                    { upload: conn.waUploadToServer }
+                );
+                
+                cards.push({
+                    header: proto.Message.InteractiveMessage.Header.create({
+                        ...(media || {}),
+                        title: "🎬 Video HD",
+                        subtitle: "No Watermark • High Quality",
+                        hasMediaAttachment: !!media,
+                    }),
+                    body: { 
+                        text: `Title: ${videoData.title}\nQuality: HD (No WM)\n\nClick button below to download` 
+                    },
+                    nativeFlowMessage: {
+                        buttons: [{
+                            name: "quick_reply",
+                            buttonParamsJson: JSON.stringify({
+                                display_text: "📥 Download HD",
+                                id: `tt_hd_${m.key.id}`
+                            })
+                        }]
                     }
                 });
+            } catch (e) {
+                l(`Media prep error: ${e.message}`);
+            }
+        }
+
+        // Option 2: Audio Only
+        if (videoData.audio) {
+            downloadOptions.push({ type: 'audio', url: videoData.audio, label: 'Audio MP3' });
+            try {
+                const media = await prepareWAMessageMedia(
+                    { image: { url: DEFAULT_IMAGE } },
+                    { upload: conn.waUploadToServer }
+                );
                 
-                const videoBuffer = Buffer.from(videoResponse.data);
+                cards.push({
+                    header: proto.Message.InteractiveMessage.Header.create({
+                        ...(media || {}),
+                        title: "🎵 Audio Only",
+                        subtitle: "MP3 Format • Music",
+                        hasMediaAttachment: !!media,
+                    }),
+                    body: { 
+                        text: `Title: ${videoData.title}\nFormat: MP3\n\nClick button below to download audio` 
+                    },
+                    nativeFlowMessage: {
+                        buttons: [{
+                            name: "quick_reply",
+                            buttonParamsJson: JSON.stringify({
+                                display_text: "🎧 Download Audio",
+                                id: `tt_audio_${m.key.id}`
+                            })
+                        }]
+                    }
+                });
+            } catch (e) {
+                l(`Media prep error: ${e.message}`);
+            }
+        }
+
+        // Option 3: Cover Image
+        if (videoData.cover) {
+            downloadOptions.push({ type: 'cover', url: videoData.cover, label: 'Cover Image' });
+            try {
+                const media = await prepareWAMessageMedia(
+                    { image: { url: videoData.cover } },
+                    { upload: conn.waUploadToServer }
+                );
                 
-                const caption = title 
-                    ? `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 ━━━━━━━\n┃ 📝 Title: ${title}\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`
-                    : `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 ━━━━━━━\n┃ ✅ Video downloaded successfully\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`;
+                cards.push({
+                    header: proto.Message.InteractiveMessage.Header.create({
+                        ...(media || {}),
+                        title: "🖼️ Cover Image",
+                        subtitle: "Thumbnail",
+                        hasMediaAttachment: !!media,
+                    }),
+                    body: { 
+                        text: `Video thumbnail/cover image\n\nClick button below to download` 
+                    },
+                    nativeFlowMessage: {
+                        buttons: [{
+                            name: "quick_reply",
+                            buttonParamsJson: JSON.stringify({
+                                display_text: "🖼️ Download Cover",
+                                id: `tt_cover_${m.key.id}`
+                            })
+                        }]
+                    }
+                });
+            } catch (e) {
+                l(`Media prep error: ${e.message}`);
+            }
+        }
+
+        if (cards.length === 0) {
+            return await conn.sendMessage(from, {
+                text: `┏━❑ 𝐄𝐑𝐑𝐎𝐑 ━━━━━━━━━━━━━\n┃ ❌ Could not prepare slides\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
+                contextInfo: getContextInfo({ sender: sender })
+            }, { quoted: fakevCard });
+        }
+
+        // Store download info for listener
+        pendingDownloads.set(m.key.id, {
+            options: downloadOptions,
+            title: videoData.title,
+            timestamp: Date.now()
+        });
+
+        // Send Carousel Message
+        const carouselMessage = generateWAMessageFromContent(
+            from,
+            {
+                viewOnceMessage: {
+                    message: {
+                        interactiveMessage: {
+                            body: { 
+                                text: `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 ━━━\n┃ 📱 Select quality below\n┃ 💡 Slide to see options\n┗━━━━━━━━━━━━━━━━━━━━` 
+                            },
+                            footer: { text: "© Powered by Sila Tech" },
+                            carouselMessage: { cards, messageVersion: 1 },
+                            contextInfo: getContextInfo({ sender: sender })
+                        }
+                    }
+                }
+            },
+            { quoted: fakevCard }
+        );
+
+        const sent = await conn.relayMessage(from, carouselMessage.message, {
+            messageId: carouselMessage.key.id
+        });
+
+        // React success
+        await conn.sendMessage(from, {
+            react: { text: '✅', key: m.key }
+        });
+
+        // Setup listener for button clicks (valid for 5 minutes)
+        const listener = async (msg) => {
+            try {
+                const upsert = msg.messages[0];
+                if (!upsert?.message) return;
+
+                // Check if it's a response to our carousel
+                const messageText = upsert.message?.conversation || 
+                                   upsert.message?.extendedTextMessage?.text || '';
                 
-                await conn.sendMessage(from, {
-                    video: videoBuffer,
-                    mimetype: "video/mp4",
-                    caption: caption
+                // Check for button response
+                const buttonId = upsert.message?.buttonsResponseMessage?.selectedButtonId ||
+                                upsert.message?.templateButtonReplyMessage?.selectedId ||
+                                messageText;
+
+                if (!buttonId || !buttonId.includes(m.key.id)) return;
+
+                const fromJid = upsert.key.remoteJid;
+                if (fromJid !== from) return;
+
+                // Parse button ID
+                const match = buttonId.match(/tt_(hd|audio|cover)_/);
+                if (!match) return;
+
+                const type = match[1];
+                const downloadInfo = pendingDownloads.get(m.key.id);
+                
+                if (!downloadInfo) {
+                    await conn.sendMessage(fromJid, {
+                        text: `┏━❑ 𝐄𝐑𝐑𝐎𝐑 ━━━━━━━━━━━━━\n┃ ❌ Download expired\n┃ Use command again\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
+                        contextInfo: getContextInfo({ sender: sender })
+                    }, { quoted: fakevCard });
+                    return;
+                }
+
+                const option = downloadInfo.options.find(opt => opt.type === type);
+                if (!option) return;
+
+                // React to selection
+                await conn.sendMessage(fromJid, {
+                    react: { text: '⬇️', key: upsert.key }
+                });
+
+                // Send downloading message
+                await conn.sendMessage(fromJid, {
+                    text: `┏━❑ 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃𝐈𝐍𝐆 ━━━━━━━━━\n┃ ⬇️ Fetching ${option.label}...\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
+                    contextInfo: getContextInfo({ sender: sender })
                 }, { quoted: fakevCard });
 
-                // If we have audio URL, download and send it as well
-                if (audioUrl) {
-                    try {
-                        const audioResponse = await axios.get(audioUrl, {
-                            responseType: 'arraybuffer',
-                            timeout: 30000,
-                            headers: {
-                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                            }
-                        });
-                        
-                        const audioBuffer = Buffer.from(audioResponse.data);
-                        
-                        await conn.sendMessage(from, {
-                            audio: audioBuffer,
-                            mimetype: "audio/mp4",
-                            ptt: false
-                        }, { quoted: fakevCard });
-                    } catch (audioError) {
-                        l(`Failed to download audio: ${audioError.message}`);
+                // Download file
+                const response = await axios.get(option.url, {
+                    responseType: 'arraybuffer',
+                    timeout: 60000,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
                     }
-                }
-                
-                // Update react to success
-                await conn.sendMessage(from, {
-                    react: { text: '✅', key: m.key }
                 });
-                return;
-                
-            } catch (downloadError) {
-                l(`Failed to download video: ${downloadError.message}`);
-                // Fallback to URL method
-                try {
-                    const caption = title 
-                        ? `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 ━━━━━━━\n┃ 📝 Title: ${title}\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`
-                        : `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃 ━━━━━━━\n┃ ✅ Video downloaded successfully\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`;
-                    
-                    await conn.sendMessage(from, {
-                        video: { url: videoUrl },
-                        mimetype: "video/mp4",
-                        caption: caption
-                    }, { quoted: fakevCard });
-                    
-                    await conn.sendMessage(from, {
-                        react: { text: '✅', key: m.key }
-                    });
-                    return;
-                } catch (urlError) {
-                    l(`URL method also failed: ${urlError.message}`);
-                }
-            }
-        }
 
-        // If we reach here, no method worked
-        await conn.sendMessage(from, {
-            text: `┏━❑ 𝐄𝐑𝐑𝐎𝐑 ━━━━━━━━━━━━━\n┃ ❌ Failed to download\n┃ All download methods failed\n┗━━━━━━━━━━━━━━━━━━━━\n\nPlease try again with a different link.\n\n> © Powered by Sila Tech`,
-            contextInfo: getContextInfo({ sender: sender })
-        }, { quoted: fakevCard });
-        
-        await conn.sendMessage(from, {
-            react: { text: '❌', key: m.key }
-        });
+                const buffer = Buffer.from(response.data);
+
+                // Send based on type
+                if (type === 'audio') {
+                    await conn.sendMessage(fromJid, {
+                        audio: buffer,
+                        mimetype: "audio/mp4",
+                        ptt: false,
+                        contextInfo: getContextInfo({ sender: sender })
+                    }, { quoted: fakevCard });
+                } else if (type === 'cover') {
+                    await conn.sendMessage(fromJid, {
+                        image: buffer,
+                        caption: `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 𝐂𝐎𝐕𝐄𝐑 ━━━━━━━\n┃ ✅ Downloaded successfully\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
+                        contextInfo: getContextInfo({ sender: sender })
+                    }, { quoted: fakevCard });
+                } else {
+                    // Video
+                    await conn.sendMessage(fromJid, {
+                        video: buffer,
+                        mimetype: "video/mp4",
+                        caption: `┏━❑ 𝐓𝐈𝐊𝐓𝐎𝐊 𝐕𝐈𝐃𝐄𝐎 ━━━━━━━━━\n┃ ✅ ${option.label} Downloaded\n┃ 📝 ${downloadInfo.title}\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
+                        contextInfo: getContextInfo({ sender: sender })
+                    }, { quoted: fakevCard });
+                }
+
+                // Success react
+                await conn.sendMessage(fromJid, {
+                    react: { text: '✅', key: upsert.key }
+                });
+
+                // Cleanup
+                pendingDownloads.delete(m.key.id);
+                conn.ev.off('messages.upsert', listener);
+
+            } catch (error) {
+                l(`Slide listener error: ${error.message}`);
+                await conn.sendMessage(from, {
+                    text: `┏━❑ 𝐄𝐑𝐑𝐎𝐑 ━━━━━━━━━━━━━\n┃ ❌ Download failed\n┃ ${error.message}\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
+                    contextInfo: getContextInfo({ sender: sender })
+                }, { quoted: fakevCard });
+            }
+        };
+
+        // Add listener
+        conn.ev.on('messages.upsert', listener);
+
+        // Auto cleanup after 5 minutes
+        setTimeout(() => {
+            pendingDownloads.delete(m.key.id);
+            try {
+                conn.ev.off('messages.upsert', listener);
+            } catch(e) {}
+        }, 5 * 60 * 1000);
 
     } catch (e) {
         l(e);
         await conn.sendMessage(from, {
-            text: `┏━❑ 𝐄𝐑𝐑𝐎𝐑 ━━━━━━━━━━━━━\n┃ ❌ Command failed\n┗━━━━━━━━━━━━━━━━━━━━\n\n${e.message}\n\n> © Powered by Sila Tech`,
+            text: `┏━❑ 𝐄𝐑𝐑𝐎𝐑 ━━━━━━━━━━━━━\n┃ ❌ ${e.message}\n┗━━━━━━━━━━━━━━━━━━━━\n\n> © Powered by Sila Tech`,
             contextInfo: getContextInfo({ sender: sender })
         }, { quoted: fakevCard });
         
