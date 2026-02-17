@@ -53,8 +53,7 @@ try{
     await conn.sendMessage(from, {
         text: `┏━❑ 𝐆𝐑𝐎𝐔𝐏 𝐌𝐔𝐓𝐄𝐃 ━━━━━━━━━
 ┃ ✅ 𝙶𝚛𝚘𝚞𝚙 𝚑𝚊𝚜 𝚋𝚎𝚎𝚗 𝚖𝚞𝚝𝚎𝚍
-┗━━━━━━━━━━━━━━━━━━━━
-
+┗━━━━━━━━━━━━━━━━━━━━
 > © Powered by Sila Tech`,
         contextInfo: getContextInfo({ sender: sender })
     }, { quoted: fakevCard });
