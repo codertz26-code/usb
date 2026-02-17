@@ -1,6 +1,6 @@
 {
   "name": "SILA-MD",
-  "description": "WhatsApp bot made by Nima Md",
+  "description": "WhatsApp bot made by Sila Md",
   "logo": "https://files.catbox.moe/36vahk.png",
   "keywords": ["SILA-MD"],
   "success_url": "/",
@@ -22,7 +22,7 @@
     "CUSTOM_STATUS_EMOJIS": {
       "description": "feed in emoji of your desire.",
       "required": true,
-      "value": "✌️"
+      "value": "🎭"
     }, 
     "PREFIX": {
       "description": "paste your bot prefix note! Don't apply null prefix.",
@@ -41,13 +41,13 @@
     "ALWAYS_ONLINE": {
       "description": "Make it true if want always online.",
       "required": false,
-      "value": "false"  
+      "value": "true"  
     },    
   
     "AUTO_VOICE": {
       "description": "Make it true if want automatic voice reply .",
       "required": true,
-      "value": "true"
+      "value": "false"
     }, 
 
     "AUTO_REPLY": {
@@ -59,7 +59,7 @@
     "AUTO_STICKER": {
       "description": "Make it true if you want automatic sticker.",
       "required": true,
-      "value": "true"
+      "value": "false"
     }, 
 
 
@@ -78,7 +78,7 @@
     "AUTO_STATUS_REPLY": {
       "description": "Make it true for auto reply msg on status seen.",
       "required": true,
-      "value": "true"
+      "value": "false"
     }, 
 
     "AUTO_STATUS_MSG": {
@@ -111,27 +111,27 @@
     "ANTI_LINK": {
       "description": "Make it true if you want bot auto remove group link.",
       "required": true,
-      "value": "true"
+      "value": "false"
       
     },
 
      "ANTI_LINK_KICK": {
       "description": "Make it true if you want bot auto remove group link.",
       "required": true,
-      "value": "true"
+      "value": "false"
       
     },
     
     "ANTI_BAD": {
       "description": "Make it true if you want bot auto delete bad words.",
       "required": true,
-      "value": "true"
+      "value": "false"
     },
 
    "MENTION_REPLY": {
       "description": "make it true if want mention reply if someone menetion you.",
       "required": true,
-      "value": "true"
+      "value": "false"
     },
     
     "MENU_IMAGE_URL": {
@@ -155,25 +155,25 @@
     "AUTO_RECORDING": {
       "description": "Make it true if you want auto recoding.",
       "required": true,
-      "value": "true"
+      "value": "false"
     },
 
     "AUTO_TYPING": {
       "description": "Make it true if you want auto typing.",
       "required": false,
-      "value": "false"
+      "value": "true"
     },
 
     "AUTO_REACT": {
       "description": "Make it true if you want react on every message.",
       "required": true,
-      "value": "true"
+      "value": "false"
     },
     
     "CUSTOM_REACT": {
       "description": "Make it true if you want custom reactions.",
       "required": true,
-      "value": "true"
+      "value": "false"
       
     }, 
     
@@ -186,7 +186,7 @@
     "ANTI_DEL_PATH": {
       "description": "change it to -same- if you want to resend deleted message in same chat",
       "required": true,
-      "value": "log"
+      "value": "inbox"
     }, 
 
     "READ_MESSAGE": {
