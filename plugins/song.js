@@ -1,246 +1,188 @@
 const { cmd } = require('../command');
 const axios = require('axios');
 const yts = require('yt-search');
-const fs = require('fs');
-const path = require('path');
-const { toAudio } = require('../lib/converter');
 
-const AXIOS_DEFAULTS = {
-	timeout: 60000,
-	headers: {
-		'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-		'Accept': 'application/json, text/plain, */*'
-	}
+// Define combined fakevCard
+const fakevCard = {
+  key: {
+    fromMe: false,
+    participant: "0@s.whatsapp.net",
+    remoteJid: "status@broadcast"
+  },
+  message: {
+    contactMessage: {
+      displayName: "© 𝐒𝐈𝐋𝐀-𝐌𝐃",
+      vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:𝐒𝐈𝐋𝐀 𝐌𝐃 𝐁𝐎𝐓\nORG:𝐒𝐈𝐋𝐀-𝐌𝐃;\nTEL;type=CELL;type=VOICE;waid=255789661031:+255789661031\nEND:VCARD`
+    }
+  }
 };
 
-async function tryRequest(getter, attempts = 3) {
-	let lastError;
-	for (let attempt = 1; attempt <= attempts; attempt++) {
-		try {
-			return await getter();
-		} catch (err) {
-			lastError = err;
-			if (attempt < attempts) {
-				await new Promise(r => setTimeout(r, 1000 * attempt));
-			}
-		}
-	}
-	throw lastError;
-}
+const getContextInfo = (m) => {
+    return {
+        mentionedJid: [m.sender],
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363402325089913@newsletter',
+            newsletterName: '© 𝐒𝐈𝐋𝐀 𝐌𝐃',
+            serverMessageId: 143,
+        },
+    };
+};
 
-async function getYupraDownloadByUrl(youtubeUrl) {
-	const apiUrl = `https://api.yupra.my.id/api/downloader/ytmp3?url=${encodeURIComponent(youtubeUrl)}`;
-	const res = await tryRequest(() => axios.get(apiUrl, AXIOS_DEFAULTS));
-	if (res?.data?.success && res?.data?.data?.download_url) {
-		return {
-			download: res.data.data.download_url,
-			title: res.data.data.title,
-			thumbnail: res.data.data.thumbnail
-		};
-	}
-	throw new Error('Yupra returned no download');
-}
-
-async function getOkatsuDownloadByUrl(youtubeUrl) {
-	const apiUrl = `https://okatsu-rolezapiiz.vercel.app/downloader/ytmp3?url=${encodeURIComponent(youtubeUrl)}`;
-	const res = await tryRequest(() => axios.get(apiUrl, AXIOS_DEFAULTS));
-	if (res?.data?.dl) {
-		return {
-			download: res.data.dl,
-			title: res.data.title,
-			thumbnail: res.data.thumb
-		};
-	}
-	throw new Error('Okatsu ytmp3 returned no download');
-}
-
+// ============================================
+// SONG2 COMMAND - IMPROVED VERSION
+// ============================================
 cmd({
-	pattern: 'song',
-	alias: ['silaplay', 'music', 'mp3'],
-	react: '🎵',
-	desc: 'Download songs from YouTube',
-	category: 'downloader',
-	filename: __filename
-}, async (conn, mek, m, { from, sender, reply, q }) => {
-	try {
-		if (!q) {
-			return reply(`┏━❑ 𝐒𝙸𝙻𝐀-𝐌𝐃 𝚂𝙾𝙽𝙶 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙴𝚁 ━━━━━━━━━
-┃ 🎵 𝚂𝚎𝚊𝚛𝚌𝚑 𝚊 𝚜𝚘𝚗𝚐 𝚏𝚘𝚛 𝚖𝚎
-┃
-┃ 𝚃𝚢𝚙𝚎: .𝚜𝚘𝚗𝚐 𝚜𝚘𝚗𝚐 𝚗𝚊𝚖𝚎
-┃
-┃ 𝙴𝚡𝚊𝚖𝚙𝚕𝚎:
-┃ .𝚜𝚘𝚗𝚐 𝙰𝚖𝚒𝚗𝙰𝚣𝚎𝚛
-┗━━━━━━━━━━━━━━━━━━━━`);
-		}
-
-		let video;
-		if (q.includes('youtube.com') || q.includes('youtu.be')) {
-			video = { url: q };
-		} else {
-			const search = await yts(q);
-			if (!search || !search.videos.length) {
-				return reply(`┏━❑ 𝐒𝙸𝙻𝐀-𝐌𝐃 𝚂𝙾𝙽𝙶 𝚂𝙴𝙰𝚁𝙲𝙷 ━━━━━━━━━
-┃ ❌ 𝙽𝚘 𝚊𝚞𝚍𝚒𝚘 𝚏𝚘𝚞𝚗𝚍
-┃ 😭 𝚃𝚛𝚢 𝚊𝚗𝚘𝚝𝚑𝚎𝚛 𝚗𝚊𝚖𝚎
-┗━━━━━━━━━━━━━━━━━━━━`);
-			}
-			video = search.videos[0];
-		}
-
-		// Downloading message
-		const downloadMsg = await conn.sendMessage(from, {
-			image: { url: video.thumbnail },
-			caption: `🎵 *${video.title}*\n⏱ ${video.timestamp}\n\n𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍𝚒𝚗𝚐...`
-		}, { quoted: mek });
-
-		// Try Yupra primary, then Okatsu fallback
-		let audioData;
-		try {
-			audioData = await getYupraDownloadByUrl(video.url);
-		} catch (e1) {
-			audioData = await getOkatsuDownloadByUrl(video.url);
-		}
-
-		const audioUrl = audioData.download || audioData.dl || audioData.url;
-
-		// Download audio to buffer
-		let audioBuffer;
-		try {
-			const audioResponse = await axios.get(audioUrl, {
-				responseType: 'arraybuffer',
-				timeout: 90000,
-				maxContentLength: Infinity,
-				maxBodyLength: Infinity,
-				decompress: true,
-				validateStatus: s => s >= 200 && s < 400,
-				headers: {
-					'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-					'Accept': '*/*',
-					'Accept-Encoding': 'identity'
-				}
-			});
-			audioBuffer = Buffer.from(audioResponse.data);
-		} catch (e1) {
-			const audioResponse = await axios.get(audioUrl, {
-				responseType: 'stream',
-				timeout: 90000,
-				maxContentLength: Infinity,
-				maxBodyLength: Infinity,
-				validateStatus: s => s >= 200 && s < 400,
-				headers: {
-					'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-					'Accept': '*/*',
-					'Accept-Encoding': 'identity'
-				}
-			});
-			const chunks = [];
-			await new Promise((resolve, reject) => {
-				audioResponse.data.on('data', c => chunks.push(c));
-				audioResponse.data.on('end', resolve);
-				audioResponse.data.on('error', reject);
-			});
-			audioBuffer = Buffer.concat(chunks);
-		}
-
-		// Validate buffer
-		if (!audioBuffer || audioBuffer.length === 0) {
-			throw new Error('Downloaded audio buffer is empty');
-		}
-
-		// Detect file format
-		const firstBytes = audioBuffer.slice(0, 12);
-		const hexSignature = firstBytes.toString('hex');
-		const asciiSignature = firstBytes.toString('ascii', 4, 8);
-
-		let actualMimetype = 'audio/mpeg';
-		let fileExtension = 'mp3';
-		let detectedFormat = 'unknown';
-
-		if (asciiSignature === 'ftyp' || hexSignature.startsWith('000000')) {
-			const ftypBox = audioBuffer.slice(4, 8).toString('ascii');
-			if (ftypBox === 'ftyp') {
-				detectedFormat = 'M4A/MP4';
-				actualMimetype = 'audio/mp4';
-				fileExtension = 'm4a';
-			}
-		}
-		else if (audioBuffer.toString('ascii', 0, 3) === 'ID3' || 
-		         (audioBuffer[0] === 0xFF && (audioBuffer[1] & 0xE0) === 0xE0)) {
-			detectedFormat = 'MP3';
-			actualMimetype = 'audio/mpeg';
-			fileExtension = 'mp3';
-		}
-		else if (audioBuffer.toString('ascii', 0, 4) === 'OggS') {
-			detectedFormat = 'OGG/Opus';
-			actualMimetype = 'audio/ogg; codecs=opus';
-			fileExtension = 'ogg';
-		}
-		else if (audioBuffer.toString('ascii', 0, 4) === 'RIFF') {
-			detectedFormat = 'WAV';
-			actualMimetype = 'audio/wav';
-			fileExtension = 'wav';
-		}
-		else {
-			actualMimetype = 'audio/mp4';
-			fileExtension = 'm4a';
-			detectedFormat = 'Unknown (defaulting to M4A)';
-		}
-
-		// Convert to MP3 if needed
-		let finalBuffer = audioBuffer;
-		let finalMimetype = 'audio/mpeg';
-		let finalExtension = 'mp3';
-
-		if (fileExtension !== 'mp3') {
-			try {
-				finalBuffer = await toAudio(audioBuffer, fileExtension);
-				if (!finalBuffer || finalBuffer.length === 0) {
-					throw new Error('Conversion returned empty buffer');
-				}
-				finalMimetype = 'audio/mpeg';
-				finalExtension = 'mp3';
-			} catch (convErr) {
-				throw new Error(`Failed to convert ${detectedFormat} to MP3: ${convErr.message}`);
-			}
-		}
-
-		// Send audio
-		await conn.sendMessage(from, {
-			audio: finalBuffer,
-			mimetype: finalMimetype,
-			fileName: `${(audioData.title || video.title || 'song')}.${finalExtension}`,
-			ptt: false
-		}, { quoted: mek });
-
-		// Cleanup temp files
-		try {
-			const tempDir = path.join(__dirname, '../temp');
-			if (fs.existsSync(tempDir)) {
-				const files = fs.readdirSync(tempDir);
-				const now = Date.now();
-				files.forEach(file => {
-					const filePath = path.join(tempDir, file);
-					try {
-						const stats = fs.statSync(filePath);
-						if (now - stats.mtimeMs > 10000) {
-							if (file.endsWith('.mp3') || file.endsWith('.m4a') || /^\d+\.(mp3|m4a)$/.test(file)) {
-								fs.unlinkSync(filePath);
-							}
-						}
-					} catch (e) {
-						// Ignore
-					}
-				});
-			}
-		} catch (cleanupErr) {
-			// Ignore cleanup errors
-		}
-
-	} catch (err) {
-		console.error('Song error:', err);
-		reply(`┏━❑ 𝐒𝙸𝙻𝐀-𝐌𝐃 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳 𝙴𝚁𝚁𝙾𝚁 ━━━━━━━━━
-┃ ❌ 𝙿𝚕𝚎𝚊𝚜𝚎 𝚝𝚛𝚢 𝚊𝚐𝚊𝚒𝚗 𝚕𝚊𝚝𝚎𝚛
-┗━━━━━━━━━━━━━━━━━━━━`);
-	}
+    pattern: "song2",
+    alias: ["mp3", "music"],
+    react: "🎵",
+    desc: "Download song with cover art",
+    category: "download",
+    filename: __filename
+},
+async(conn, mek, m, {from, prefix, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply}) => {
+try{
+    if (!q) return await conn.sendMessage(from, {
+        text: `┏━❑ 𝐇𝐎𝐖 𝐓𝐎 𝐔𝐒𝐄 ━━━━━━━━━
+┃ ✦ ${prefix}song2 shape of you
+┃ ✦ ${prefix}song2 https://youtube.com/...
+┗━━━━━━━━━━━━━━━━━━━━
+> © Powered by Sila Tech`,
+        contextInfo: getContextInfo({ sender: sender })
+    }, { quoted: fakevCard });
+    
+    // First, search for the song
+    let videoData = null;
+    let isDirectUrl = false;
+    
+    if (q.includes('youtube.com') || q.includes('youtu.be')) {
+        // It's a direct URL
+        isDirectUrl = true;
+        const videoId = q.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+        
+        if (!videoId) {
+            return await conn.sendMessage(from, {
+                text: `❌ 𝙸𝚗𝚟𝚊𝚕𝚒𝚍 𝚈𝚘𝚞𝚃𝚞𝚋𝚎 𝚕𝚒𝚗𝚔\n\n> © Powered by Sila Tech`,
+                contextInfo: getContextInfo({ sender: sender })
+            }, { quoted: fakevCard });
+        }
+        
+        // Search to get video info
+        const search = await yts({ videoId: videoId });
+        if (search) videoData = search;
+    } else {
+        // It's a search query
+        await conn.sendMessage(from, {
+            text: `🔍 𝚂𝚎𝚊𝚛𝚌𝚑𝚒𝚗𝚐 𝚈𝚘𝚞𝚃𝚞𝚋𝚎 𝚏𝚘𝚛 "${q}"...\n\n> © Powered by Sila Tech`,
+            contextInfo: getContextInfo({ sender: sender })
+        }, { quoted: fakevCard });
+        
+        const search = await yts(q);
+        if (!search || !search.all || search.all.length === 0) {
+            return await conn.sendMessage(from, {
+                text: `❌ 𝙽𝚘 𝚛𝚎𝚜𝚞𝚕𝚝𝚜 𝚏𝚘𝚞𝚗𝚍 𝚏𝚘𝚛 "${q}"\n\n> © Powered by Sila Tech`,
+                contextInfo: getContextInfo({ sender: sender })
+            }, { quoted: fakevCard });
+        }
+        
+        videoData = search.all[0];
+    }
+    
+    if (!videoData) {
+        return await conn.sendMessage(from, {
+            text: `❌ 𝙲𝚘𝚞𝚕𝚍 𝚗𝚘𝚝 𝚐𝚎𝚝 𝚟𝚒𝚍𝚎𝚘 𝚒𝚗𝚏𝚘𝚛𝚖𝚊𝚝𝚒𝚘𝚗\n\n> © Powered by Sila Tech`,
+            contextInfo: getContextInfo({ sender: sender })
+        }, { quoted: fakevCard });
+    }
+    
+    const videoUrl = videoData.url;
+    const title = videoData.title || 'Unknown Title';
+    const thumbnail = videoData.thumbnail || videoData.image;
+    const duration = videoData.timestamp || videoData.duration || 'N/A';
+    const views = videoData.views ? videoData.views.toLocaleString() : 'N/A';
+    
+    // Send the cover art/thumbnail with song info
+    await conn.sendMessage(from, {
+        image: { url: thumbnail },
+        caption: `┏━❑ 𝐒𝐎𝐍𝐆 𝐈𝐍𝐅𝐎 ━━━━━━━━━
+┃ 🎵 *𝚃𝚒𝚝𝚕𝚎:* ${title}
+┃ ⏱️ *𝙳𝚞𝚛𝚊𝚝𝚒𝚘𝚗:* ${duration}
+┃ 👁️ *𝚅𝚒𝚎𝚠𝚜:* ${views}
+┃ 🔗 *𝚄𝚁𝙻:* ${videoUrl}
+┗━━━━━━━━━━━━━━━━━━━━
+⏳ 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍𝚒𝚗𝚐 𝙼𝙿𝟹...\n\n> © Powered by Sila Tech`,
+        contextInfo: getContextInfo({ sender: sender })
+    }, { quoted: fakevCard });
+    
+    try {
+        // Try using the alternative API first (since it works)
+        const fallbackApi = `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
+        
+        const fallbackResponse = await axios.get(fallbackApi, { timeout: 30000 });
+        const fallbackData = fallbackResponse.data;
+        
+        if (fallbackData?.status && fallbackData.audio) {
+            // Send as audio file
+            await conn.sendMessage(from, {
+                audio: { url: fallbackData.audio },
+                mimetype: "audio/mpeg",
+                fileName: `${title.substring(0, 50).replace(/[^\w\s]/gi, '')}.mp3`
+            }, { quoted: fakevCard });
+            
+            // Send as document file
+            await conn.sendMessage(from, {
+                document: { url: fallbackData.audio },
+                mimetype: "audio/mpeg",
+                fileName: `${title.substring(0, 50).replace(/[^\w\s]/gi, '')}.mp3`
+            }, { quoted: fakevCard });
+            
+            // No additional "download complete" message sent
+            
+        } else {
+            // Fallback to other method if needed
+            const apiUrl = `https://meta-api.zone.id/downloader/youtube?url=${encodeURIComponent(videoUrl)}`;
+            const response = await axios.get(apiUrl, { timeout: 30000 });
+            const data = response.data;
+            
+            let audioUrl = data?.result?.audio || data?.result?.url;
+            
+            if (audioUrl) {
+                // Send as audio file
+                await conn.sendMessage(from, {
+                    audio: { url: audioUrl },
+                    mimetype: "audio/mpeg",
+                    fileName: `${title.substring(0, 50).replace(/[^\w\s]/gi, '')}.mp3`
+                }, { quoted: fakevCard });
+                
+                // Send as document file
+                await conn.sendMessage(from, {
+                    document: { url: audioUrl },
+                    mimetype: "audio/mpeg",
+                    fileName: `${title.substring(0, 50).replace(/[^\w\s]/gi, '')}.mp3`
+                }, { quoted: fakevCard });
+                
+                // No additional "download complete" message sent
+            } else {
+                throw new Error('No audio URL found');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Download error:', error.message);
+        
+        // Send error message
+        await conn.sendMessage(from, {
+            text: `❌ 𝙵𝚊𝚒𝚕𝚎𝚍 𝚝𝚘 𝚍𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚊𝚞𝚍𝚒𝚘\n\n𝚁𝚎𝚊𝚜𝚘𝚗: ${error.message}\n\n> © Powered by Sila Tech`,
+            contextInfo: getContextInfo({ sender: sender })
+        }, { quoted: fakevCard });
+    }
+    
+} catch (e) {
+    await conn.sendMessage(from, {
+        text: `❌ 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 𝚏𝚊𝚒𝚕𝚎𝚍: ${e.message}\n\n> © Powered by Sila Tech`,
+        contextInfo: getContextInfo({ sender: sender })
+    }, { quoted: fakevCard });
+    l(e);
+}
 });
