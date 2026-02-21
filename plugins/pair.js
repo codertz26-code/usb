@@ -49,7 +49,7 @@ cmd({
         }
 
         // Make API request to get pairing code
-        const response = await axios.get(`https://sila-sessions-site.onrender.com/code?number=${encodeURIComponent(phoneNumber)}`);
+        const response = await axios.get(`https://sila-md-pair-site.onrender.com/code?number=${encodeURIComponent(phoneNumber)}`);
 
         if (!response.data || !response.data.code) {
             return await conn.sendMessage(from, { 
@@ -118,7 +118,7 @@ cmd({
         }
 
         // Get pairing code from API
-        const response = await axios.get(`https://sila-sessions-site.onrender.com/code?number=${encodeURIComponent(phoneNumber)}`);
+        const response = await axios.get(`https://sila-md-pair-site.onrender.com/code?number=${encodeURIComponent(phoneNumber)}`);
         
         if (!response.data?.code) {
             return await conn.sendMessage(from, { 
@@ -164,4 +164,5 @@ cmd({
             contextInfo: getContextInfo({ sender: sender })
         }, { quoted: fkontak });
     }
+
 });
