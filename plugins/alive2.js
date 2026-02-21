@@ -29,7 +29,7 @@ const formatUptime = (seconds) => {
 };
 
 cmd({
-    pattern: "alive",
+    pattern: "alive2",
     desc: "Check if bot is alive and active",
     category: "main",
     react: "💚",
