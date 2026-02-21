@@ -34,7 +34,8 @@ const {
 } = require('@whiskeysockets/baileys')
 
 const l = console.log
-const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions')
+const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson, 
+        fkontak, getContextInfo, sendButtonMessage, sendTemplateButton, sendListMessage, createButtons } = require('./lib/functions')
 const { AntiDelDB, initializeAntiDeleteSettings, setAnti, getAnti, getAllAntiDeleteSettings, saveContact, loadMessage, getName, getChatSummary, saveGroupMetadata, getGroupMetadata, saveMessageCount, getInactiveGroupMembers, getGroupMembersMessageCount, saveMessage } = require('./data')
 const fs = require('fs')
 const ff = require('fluent-ffmpeg')
@@ -127,6 +128,29 @@ async function connectToWA() {
       auth: state,
       version
     })
+
+    // ============ ADD BUTTON HELPER FUNCTIONS TO conn ============
+    conn.sendButton = async (jid, text, buttons, footer = '', options = {}) => {
+      return await sendButtonMessage(conn, jid, text, buttons, footer, options);
+    };
+    
+    conn.sendTemplateButton = async (jid, text, footer, buttons, options = {}) => {
+      return await sendTemplateButton(conn, jid, text, footer, buttons, options);
+    };
+    
+    conn.sendList = async (jid, text, footer, title, buttonText, sections, options = {}) => {
+      return await sendListMessage(conn, jid, text, footer, title, buttonText, sections, options);
+    };
+    
+    conn.fkontak = fkontak;
+    conn.getContextInfo = (m, ownerName = config.OWNER_NAME || 'Owner', ownerNumber = config.OWNER_NUMBER || '255*********') => {
+      return getContextInfo(m, ownerName, ownerNumber);
+    };
+    
+    conn.createButtons = (buttons) => {
+      return createButtons(buttons);
+    };
+    // ============================================================
 
     conn.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect } = update // QR CODE IMEONDOKA HAPA
