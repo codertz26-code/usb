@@ -50,7 +50,7 @@ async (conn, mek, m, { from, q, sender }) => {
 
         await conn.sendMessage(from, { react: { text: '⏳', key: m.key } });
 
-        const apiUrl = `https://apis.davidcyriltech.my.id/download/apk?text=${encodeURIComponent(q)}`;
+        const apiUrl = `http://ws75.aptoide.com/api/7/apps/search/query=${q}/limit=1`;
         const response = await axios.get(apiUrl);
         const res = response.data;
 
@@ -82,4 +82,5 @@ async (conn, mek, m, { from, q, sender }) => {
         await conn.sendMessage(from, { react: { text: '❌', key: m.key } });
         await conn.sendMessage(from, { text: "❌ 𝙴𝚛𝚛𝚘𝚛 𝚏𝚎𝚝𝚌𝚑𝚒𝚗𝚐 𝙰𝙿𝙺.", contextInfo: getContextInfo({ sender: sender }) }, { quoted: fkontak });
     }
+
 });
