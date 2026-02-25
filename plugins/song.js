@@ -34,8 +34,8 @@ const getContextInfo = (m) => {
 // SONG2 COMMAND - IMPROVED VERSION
 // ============================================
 cmd({
-    pattern: "song2",
-    alias: ["mp3", "music"],
+    pattern: "song",
+    alias: ["mp3", "play"],
     react: "🎵",
     desc: "Download song with cover art",
     category: "download",
@@ -45,8 +45,8 @@ async(conn, mek, m, {from, prefix, l, quoted, body, isCmd, command, args, q, isG
 try{
     if (!q) return await conn.sendMessage(from, {
         text: `┏━❑ 𝐇𝐎𝐖 𝐓𝐎 𝐔𝐒𝐄 ━━━━━━━━━
-┃ ✦ ${prefix}song2 shape of you
-┃ ✦ ${prefix}song2 https://youtube.com/...
+┃ ✦ song shape of you
+┃ ✦ song https://youtube.com/...
 ┗━━━━━━━━━━━━━━━━━━━━
 > © Powered by Sila Tech`,
         contextInfo: getContextInfo({ sender: sender })
@@ -186,3 +186,4 @@ try{
     l(e);
 }
 });
+
