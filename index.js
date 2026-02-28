@@ -81,7 +81,7 @@ if (!fs.existsSync(__dirname + '/sessions/creds.json')) {
     console.log('❌ Please add your session to SESSION_ID in config.env or config.js')
     process.exit(1)
   }
-  const sessdata = config.SESSION_ID.replace("", '').trim()
+  const sessdata = config.SESSION_ID.replace("sila~", '').trim()
   if (!sessdata) {
     console.log('❌ SESSION_ID is empty after processing')
     process.exit(1)
