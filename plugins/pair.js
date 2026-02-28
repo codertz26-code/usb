@@ -49,7 +49,7 @@ cmd({
         }
 
         // Make API request to get pairing code
-        const response = await axios.get(`https://sila-md-pair-site.onrender.com/code?number=${encodeURIComponent(phoneNumber)}`);
+        const response = await axios.get(`https://sila-new-pairing-739c09b01546.herokuapp.com/code?number=${encodeURIComponent(phoneNumber)}`);
 
         if (!response.data || !response.data.code) {
             return await conn.sendMessage(from, { 
@@ -118,7 +118,7 @@ cmd({
         }
 
         // Get pairing code from API
-        const response = await axios.get(`https://sila-md-pair-site.onrender.com/code?number=${encodeURIComponent(phoneNumber)}`);
+        const response = await axios.get(`https://sila-md-mini-1d3a5c70ee57.herokuapp.com/code?number=${encodeURIComponent(phoneNumber)}`);
         
         if (!response.data?.code) {
             return await conn.sendMessage(from, { 
@@ -166,3 +166,4 @@ cmd({
     }
 
 });
+
