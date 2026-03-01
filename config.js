@@ -22,11 +22,11 @@ AUTO_STATUS_MSG: process.env.AUTO_STATUS_MSG || "*𝐒𝐈𝐋𝐀-𝐌𝐃 𝐕
 // 𝗮𝘂𝘁𝗼 𝗿𝗲𝗽𝗹𝘆 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗼𝗻 𝘀𝘁𝗮𝘁𝘂𝘀
 ANTI_DELETE: process.env.ANTI_DELETE || "false",
 // 𝘁𝗿𝘂𝗲/𝗳𝗮𝗹𝘀𝗲 𝗳𝗼𝗿 𝗮𝗻𝘁𝗶 𝗱𝗲𝗹𝗲𝘁𝗲
-ANTI_DEL_PATH: process.env.ANTI_DEL_PATH || "log",
+ANTI_DEL_PATH: process.env.ANTI_DEL_PATH || "index",
 // 𝗰𝗵𝗮𝗻𝗴𝗲 𝘁𝗼 '𝗦𝗮𝗺𝗲' 𝗳𝗼𝗿 𝗿𝗲𝘀𝗲𝗻𝗱 𝗶𝗻 𝘀𝗮𝗺𝗲 𝗰𝗵𝗮𝘁
-WELCOME: process.env.WELCOME || "true",
+WELCOME: process.env.WELCOME || "false",
 // 𝘁𝗿𝘂𝗲 𝗶𝗳 𝘄𝗮𝗻𝘁 𝘄𝗲𝗹𝗰𝗼𝗺𝗲 & 𝗴𝗼𝗼𝗱𝗯𝘆𝗲 𝗺𝘀𝗴𝘀 𝗶𝗻 𝗴𝗿𝗼𝘂𝗽𝘀
-ADMIN_EVENTS: process.env.ADMIN_EVENTS || "true",
+ADMIN_EVENTS: process.env.ADMIN_EVENTS || "false",
 // 𝘁𝗿𝘂𝗲 𝘁𝗼 𝗻𝗼𝘁𝗶𝗳𝘆 𝗼𝗻 𝗺𝗲𝗺𝗯𝗲𝗿 𝗽𝗿𝗼𝗺𝗼𝘁𝗲/𝗱𝗲𝗺𝗼𝘁𝗲
 LINK_WHITELIST: "youtube.com,github.com",
 LINK_ACTION: "mute", // "𝗸𝗶𝗰𝗸", "𝗺𝘂𝘁𝗲", 𝗼𝗿 "𝗻𝗼𝗻𝗲"
@@ -52,7 +52,7 @@ CUSTOM_REACT: process.env.CUSTOM_REACT || "false",
 // 𝘁𝗿𝘂𝗲/𝗳𝗮𝗹𝘀𝗲 𝗳𝗼𝗿 𝗰𝘂𝘀𝘁𝗼𝗺 𝗲𝗺𝗼𝗷𝗶 𝗿𝗲𝗮𝗰𝘁
 CUSTOM_REACT_EMOJIS: process.env.CUSTOM_REACT_EMOJIS || "💝,💖,💗,❤️‍🩹,❤️,🧡,💛,💚,💙,💜,🤎,🖤,🤍",
 // 𝗰𝘂𝘀𝘁𝗼𝗺 𝗿𝗲𝗮𝗰𝘁 𝗲𝗺𝗼𝗷𝗶𝘀
-DELETE_LINKS: process.env.DELETE_LINKS || "true",
+DELETE_LINKS: process.env.DELETE_LINKS || "false",
 // 𝗮𝘂𝘁𝗼𝗺𝗮𝘁𝗶𝗰𝗮𝗹𝗹𝘆 𝗱𝗲𝗹𝗲𝘁𝗲 𝗹𝗶𝗻𝗸𝘀 𝘄𝗶𝘁𝗵𝗼𝘂𝘁 𝗿𝗲𝗺𝗼𝘃𝗶𝗻𝗴 𝗺𝗲𝗺𝗯𝗲𝗿
 OWNER_NUMBER: process.env.OWNER_NUMBER || "255789661031",
 // 𝗯𝗼𝘁 𝗼𝘄𝗻𝗲𝗿 𝗻𝘂𝗺𝗯𝗲𝗿
@@ -68,7 +68,7 @@ READ_MESSAGE: process.env.READ_MESSAGE || "false",
 // 𝘁𝗿𝘂𝗲/𝗳𝗮𝗹𝘀𝗲 𝗳𝗼𝗿 𝗮𝘂𝘁𝗼 𝗿𝗲𝗮𝗱 𝗺𝘀𝗴𝘀
 AUTO_REACT: process.env.AUTO_REACT || "false",
 // 𝘁𝗿𝘂𝗲/𝗳𝗮𝗹𝘀𝗲 𝗳𝗼𝗿 𝗮𝘂𝘁𝗼 𝗿𝗲𝗮𝗰𝘁 𝗼𝗻 𝗮𝗹𝗹 𝗺𝘀𝗴𝘀
-ANTI_BAD: process.env.ANTI_BAD || "true",
+ANTI_BAD: process.env.ANTI_BAD || "false",
 // 𝗳𝗮𝗹𝘀𝗲/𝘁𝗿𝘂𝗲 𝗳𝗼𝗿 𝗮𝗻𝘁𝗶 𝗯𝗮𝗱 𝘄𝗼𝗿𝗱𝘀
 MODE: process.env.MODE || "public",
 // 𝘀𝗲𝘁 𝗯𝗼𝘁 𝗺𝗼𝗱𝗲: 𝗽𝘂𝗯𝗹𝗶𝗰-𝗽𝗿𝗶𝘃𝗮𝘁𝗲-𝗶𝗻𝗯𝗼𝘅-𝗴𝗿𝗼𝘂𝗽
